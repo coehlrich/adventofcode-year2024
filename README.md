@@ -1,0 +1,1 @@
+For each day the commit to first add the source code for that day is what I used to get the answer for part 2 of that day and any improvements on top of that will be in separate commits
