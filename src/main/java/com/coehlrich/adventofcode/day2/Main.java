@@ -20,6 +20,8 @@ public class Main implements Day {
         for (int[] report : reports) {
             if (checkReport(report, -1)) {
                 part1++;
+                part2++;
+                continue;
             }
 
             for (int i = 0; i < report.length; i++) {
