@@ -8,7 +8,7 @@ import java.util.regex.Pattern;
 
 public class Main implements Day {
 
-    private static final Pattern MUL = Pattern.compile("do\\(\\)|don't\\(\\)|mul\\((\\d{1,3}),(\\d{1,3})\\)");
+    private static final Pattern MUL = Pattern.compile("(do|don't|mul)(?:\\(\\)|\\((\\d{1,3}),(\\d{1,3})\\))");
 
     @Override
     public Result execute(String input) {
@@ -17,11 +17,11 @@ public class Main implements Day {
         Matcher matcher = MUL.matcher(input);
         boolean enable = true;
         while (matcher.find()) {
-            switch (matcher.group(0).replaceAll("\\(.*\\)", "")) {
+            switch (matcher.group(1)) {
                 case "do" -> enable = true;
                 case "don't" -> enable = false;
                 case "mul" -> {
-                    int result = Integer.parseInt(matcher.group(1)) * Integer.parseInt(matcher.group(2));
+                    int result = Integer.parseInt(matcher.group(2)) * Integer.parseInt(matcher.group(3));
                     part1 += result;
                     if (enable) {
                         part2 += result;
