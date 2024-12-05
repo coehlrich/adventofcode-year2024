@@ -18,6 +18,7 @@ repositories {
 
 dependencies {
     implementation 'net.sf.jopt-simple:jopt-simple:6.0-alpha-3'
+    implementation 'it.unimi.dsi:fastutil:8.5.+'
 }
 
 java {
