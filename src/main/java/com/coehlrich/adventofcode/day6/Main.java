@@ -5,7 +5,9 @@ import com.coehlrich.adventofcode.Result;
 import com.coehlrich.adventofcode.util.Direction;
 import com.coehlrich.adventofcode.util.Point2;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 public class Main implements Day {
@@ -15,11 +17,11 @@ public class Main implements Day {
         char[][] map = input.lines().map(String::toCharArray).toArray(char[][]::new);
         Point2 startGuard = findGuard(map);
         Direction direction = Direction.UP;
-        Set<Point2> positions = new HashSet<>();
+        Map<Point2, Direction> positions = new HashMap<>();
         Point2 guard = startGuard;
         while (guard.y() >= 0 && guard.y() < map.length
                 && guard.x() >= 0 && guard.x() < map[0].length) {
-            positions.add(guard);
+            positions.putIfAbsent(guard, direction);
             Point2 newPos = direction.offset(guard);
             while (newPos.y() >= 0 && newPos.y() < map.length
                     && newPos.x() >= 0 && newPos.x() < map[0].length
@@ -30,8 +32,8 @@ public class Main implements Day {
             guard = newPos;
         }
         int part2 = 0;
-        for (Point2 extra : positions) {
-            if (isLoop(map, startGuard, extra)) {
+        for (Map.Entry<Point2, Direction> extra : positions.entrySet()) {
+            if (isLoop(map, extra.getValue().opposite().offset(extra.getKey()), extra.getValue(), extra.getKey())) {
                 part2++;
             }
         }
@@ -51,9 +53,8 @@ public class Main implements Day {
         return null;
     }
 
-    private boolean isLoop(char[][] map, Point2 guard, Point2 extra) {
+    private boolean isLoop(char[][] map, Point2 guard, Direction direction, Point2 extra) {
         Set<State> positions = new HashSet<>();
-        Direction direction = Direction.UP;
         while (guard.y() >= 0 && guard.y() < map.length
                 && guard.x() >= 0 && guard.x() < map[0].length) {
             if (!positions.add(new State(guard, direction))) {
