@@ -67,9 +67,6 @@ public class Main implements Day {
                 direction = direction.right();
                 newPos = direction.offset(guard);
             }
-            if (guard.equals(newPos)) {
-                System.out.println("guard = newPos");
-            }
             guard = newPos;
         }
         return false;
