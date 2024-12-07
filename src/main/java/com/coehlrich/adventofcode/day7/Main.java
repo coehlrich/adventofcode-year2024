@@ -28,6 +28,9 @@ public class Main implements Day {
         if (i == v.size()) {
             return cv == tv;
         }
+        if (cv > tv) {
+            return false;
+        }
 
         if (valid(tv, cv + v.getLong(i), i + 1, v, part2)) {
             return true;
