@@ -12,4 +12,8 @@ public record Point2(int x, int y) {
     public Point2 offset(Point2 o) {
         return new Point2(x + o.x, y + o.y);
     }
+
+    public Point2 subtract(Point2 o) {
+        return new Point2(x - o.x, y - o.y);
+    }
 }
