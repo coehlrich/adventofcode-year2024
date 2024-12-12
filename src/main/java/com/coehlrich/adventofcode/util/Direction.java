@@ -32,6 +32,15 @@ public enum Direction {
         };
     }
 
+    public Direction left() {
+        return switch (this) {
+            case UP -> LEFT;
+            case DOWN -> RIGHT;
+            case LEFT -> DOWN;
+            case RIGHT -> UP;
+        };
+    }
+
     public Direction right() {
         return switch (this) {
             case UP -> RIGHT;
