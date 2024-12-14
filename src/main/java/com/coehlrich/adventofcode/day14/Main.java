@@ -48,7 +48,6 @@ public class Main implements Day {
             }
         }
 
-        int max = 0;
         for (int i = 0; i < 10000; i++) {
             boolean[][] map = new boolean[height][width];
             for (Robot robot : robots) {
@@ -58,15 +57,22 @@ public class Main implements Day {
 
                 map[y][x] = true;
             }
-            int amount = 0;
+            int max = 0;
 
-            for (int y = 17; y < 50; y++) {
-                if (map[y][19]) {
-                    amount++;
+            for (int x = 0; x < map[0].length; x++) {
+                int amount = 0;
+                for (int y = 0; y < map.length; y++) {
+                    if (map[y][x]) {
+                        amount++;
+                    } else {
+                        max = Math.max(max, amount);
+                        amount = 0;
+                    }
                 }
+                max = Math.max(max, amount);
             }
 //            System.out.println(amount);
-            if (amount == 33) {
+            if (max >= 33) {
                 part2 = i;
 //                System.out.println((i + 1) + ":");
                 for (int y = 0; y < map.length; y++) {
