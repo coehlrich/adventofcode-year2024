@@ -60,16 +60,14 @@ public class Main implements Day {
             }
             int amount = 0;
 
-            for (int y = 17; y < 51; y++) {
+            for (int y = 17; y < 50; y++) {
                 if (map[y][19]) {
                     amount++;
                 }
             }
 //            System.out.println(amount);
             if (amount == 33) {
-                if (part2 == 0) {
-                    part2 = i;
-                }
+                part2 = i;
 //                System.out.println((i + 1) + ":");
                 for (int y = 0; y < map.length; y++) {
                     for (int x = 0; x < map[0].length; x++) {
@@ -77,6 +75,7 @@ public class Main implements Day {
                     }
                     System.out.println();
                 }
+                break;
             }
         }
 
