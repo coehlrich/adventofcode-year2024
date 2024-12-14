@@ -58,6 +58,8 @@ public class Main implements Day {
                 map[y][x] = true;
             }
             int max = 0;
+            int tx = 0;
+            int ty = 0;
 
             for (int x = 0; x < map[0].length; x++) {
                 int amount = 0;
@@ -65,18 +67,26 @@ public class Main implements Day {
                     if (map[y][x]) {
                         amount++;
                     } else {
-                        max = Math.max(max, amount);
+                        if (amount > max) {
+                            max = amount;
+                            tx = x;
+                            ty = y - amount;
+                        }
                         amount = 0;
                     }
                 }
-                max = Math.max(max, amount);
+                if (amount > max) {
+                    max = amount;
+                    tx = x;
+                    ty = map.length - amount - 1;
+                }
             }
 //            System.out.println(amount);
             if (max >= 33) {
                 part2 = i;
 //                System.out.println((i + 1) + ":");
-                for (int y = 0; y < map.length; y++) {
-                    for (int x = 0; x < map[0].length; x++) {
+                for (int y = ty; y < ty + 33; y++) {
+                    for (int x = tx; x < tx + 31; x++) {
                         System.out.print(map[y][x] ? '#' : '.');
                     }
                     System.out.println();
