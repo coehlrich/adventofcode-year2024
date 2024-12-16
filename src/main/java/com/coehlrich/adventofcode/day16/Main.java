@@ -42,6 +42,7 @@ public class Main implements Day {
             if (map[front.y()][front.x()] == Type.END) {
                 if (part1 > next.points + 1) {
                     part1 = next.points + 1;
+                    bestTiles = new HashSet<>();
                     bestTiles.addAll(next.visited);
                 } else if (part1 == next.points + 1) {
                     bestTiles.addAll(next.visited);
