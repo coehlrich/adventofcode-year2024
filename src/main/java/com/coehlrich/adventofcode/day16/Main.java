@@ -28,12 +28,14 @@ public class Main implements Day {
         Queue<State> queue = new PriorityQueue<>((s1, s2) -> s1.points - s2.points);
         queue.add(new State(new Position(reindeer, Direction.RIGHT), 0, Set.of(reindeer)));
         Object2IntMap<Position> points = new Object2IntOpenHashMap<>();
-        Map<Position, Set<Point2>> best = new HashMap<>();
         points.put(new Position(reindeer, Direction.RIGHT), 0);
         int part1 = Integer.MAX_VALUE;
         Set<Point2> bestTiles = new HashSet<>();
         while (!queue.isEmpty()) {
             State next = queue.poll();
+            if (next.points >= part1) {
+                break;
+            }
             Direction direction = next.pos.direction;
             Point2 pos = next.pos.pos;
             Point2 front = next.pos.direction.offset(next.pos.pos);
@@ -58,10 +60,6 @@ public class Main implements Day {
 
             Direction clockwise = direction.right();
             if (!points.containsKey(new Position(pos, clockwise)) || points.getInt(new Position(pos, clockwise)) >= next.points + 1000) {
-                if (points.getInt(new Position(pos, clockwise)) > next.points + 1000) {
-                    best.put(new Position(pos, clockwise), new HashSet<>());
-                }
-                best.computeIfAbsent(new Position(pos, clockwise), p -> new HashSet<>()).addAll(next.visited);
                 points.put(new Position(pos, clockwise), next.points + 1000);
                 queue.add(new State(new Position(pos, clockwise), next.points + 1000, next.visited));
             }
