@@ -37,26 +37,36 @@ public class Main implements Day {
             }
         }
         Point2 part2 = bytes.get(i);
-        return new Result(part1.size(), part2.x() + "," + part2.y());
+        return new Result(part1.size() - 1, part2.x() + "," + part2.y());
     }
 
     public Set<Point2> getSteps(boolean[][] map, int size) {
         boolean[][] visited = new boolean[size][size];
-        Queue<State> queue = new ArrayDeque<>();
-        queue.add(new State(new Point2(0, 0), Set.of(new Point2(0, 0))));
+        Map<Point2, Point2> previous = new HashMap<>();
+
+        Queue<Point2> queue = new ArrayDeque<>();
+        queue.add(new Point2(0, 0));
         visited[0][0] = true;
         while (!queue.isEmpty()) {
-            State next = queue.poll();
+            Point2 next = queue.poll();
             for (Direction direction : Direction.values()) {
-                Point2 moved = direction.offset(next.pos());
+                Point2 moved = direction.offset(next);
                 if (moved.x() >= 0 && moved.x() < size
                         && moved.y() >= 0 && moved.y() < size
                         && !map[moved.y()][moved.x()] && !visited[moved.y()][moved.x()]) {
                     if (moved.x() == size - 1 && moved.y() == size - 1) {
-                        return Stream.concat(next.steps().stream(), Stream.of(moved)).collect(Collectors.toSet());
+                        Set<Point2> path = new HashSet<>();
+                        path.add(moved);
+                        Point2 current = next;
+                        while (current != null) {
+                            path.add(current);
+                            current = previous.get(current);
+                        }
+                        return path;
                     } else {
                         visited[moved.y()][moved.x()] = true;
-                        queue.add(new State(moved, Stream.concat(next.steps().stream(), Stream.of(moved)).collect(Collectors.toSet())));
+                        previous.put(moved, next);
+                        queue.add(moved);
                     }
                 }
             }
