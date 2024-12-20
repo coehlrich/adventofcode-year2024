@@ -4,13 +4,9 @@ import com.coehlrich.adventofcode.Day;
 import com.coehlrich.adventofcode.Result;
 import com.coehlrich.adventofcode.util.Direction;
 import com.coehlrich.adventofcode.util.Point2;
-import it.unimi.dsi.fastutil.ints.Int2IntMap;
-import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 
 import java.util.ArrayDeque;
-import java.util.HashSet;
 import java.util.Queue;
-import java.util.Set;
 
 public class Main implements Day {
 
@@ -35,61 +31,7 @@ public class Main implements Day {
 
         int[][] steps = getStepsRequired(map, end);
 
-        int part1 = 0;
-        for (int y = 0; y < map.length; y++) {
-            for (int x = 0; x < map[0].length; x++) {
-                if (map[y][x] == Tile.WALL) {
-                    for (Direction d1 : Direction.values()) {
-                        for (Direction d2 : Direction.values()) {
-                            Point2 p1 = d1.offset(new Point2(x, y));
-                            Point2 p2 = d2.offset(new Point2(x, y));
-                            if (p1.x() >= 0 && p1.x() < map[0].length
-                                    && p1.y() >= 0 && p1.y() < map.length
-                                    && map[p1.y()][p1.x()] == Tile.EMPTY
-                                    && p2.x() >= 0 && p2.x() < map[0].length
-                                    && p2.y() >= 0 && p2.y() < map.length
-                                    && map[p2.y()][p2.x()] == Tile.EMPTY
-                                    && steps[p1.y()][p1.x()] > steps[p2.y()][p2.x()]) {
-                                int value = steps[p1.y()][p1.x()] - steps[p2.y()][p2.x()] - 2;
-                                if (value >= 100) {
-                                    part1++;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
 
-        int part2 = 0;
-        for (int y = 0; y < map.length; y++) {
-            for (int x = 0; x < map[0].length; x++) {
-                if (map[y][x] == Tile.EMPTY) {
-                    Point2 p1 = new Point2(x, y);
-                    for (int dy = -20; dy <= 20; dy++) {
-                        int startX = 20 - Math.abs(dy);
-                        for (int dx = -startX; dx <= startX; dx++) {
-                            Point2 p2 = p1.offset(new Point2(dx, dy));
-                            if (p2.x() >= 0 && p2.x() < map[0].length
-                                    && p2.y() >= 0 && p2.y() < map.length
-                                    && map[p2.y()][p2.x()] == Tile.EMPTY
-                                    && steps[p1.y()][p1.x()] > steps[p2.y()][p2.x()]) {
-                                int value = steps[p1.y()][p1.x()] - steps[p2.y()][p2.x()] - (Math.abs(dy) + Math.abs(dx));
-//                                if (value == 50) {
-//                                    start50.add(p1);
-//                                    end50.add(p2);
-//                                }
-                                if (value >= 100) {
-                                    part2++;
-                                }
-
-//                                count.put(value, count.get(value) + 1);
-                            }
-                        }
-                    }
-                }
-            }
-        }
 //        for (int y = 0; y < map.length; y++) {
 //            for (int x = 0; x < map[0].length; x++) {
 //                if (map[y][x] == Tile.WALL) {
@@ -108,7 +50,40 @@ public class Main implements Day {
 //            System.out.println(cheats);
 //        }
 
-        return new Result(part1, part2);
+        return new Result(getCheats(map, steps, 2), getCheats(map, steps, 20));
+    }
+
+    public int getCheats(Tile[][] map, int[][] steps, int limit) {
+        int result = 0;
+        for (int y = 0; y < map.length; y++) {
+            for (int x = 0; x < map[0].length; x++) {
+                if (map[y][x] == Tile.EMPTY) {
+                    Point2 p1 = new Point2(x, y);
+                    for (int dy = -limit; dy <= limit; dy++) {
+                        int startX = limit - Math.abs(dy);
+                        for (int dx = -startX; dx <= startX; dx++) {
+                            Point2 p2 = p1.offset(new Point2(dx, dy));
+                            if (p2.x() >= 0 && p2.x() < map[0].length
+                                    && p2.y() >= 0 && p2.y() < map.length
+                                    && map[p2.y()][p2.x()] == Tile.EMPTY
+                                    && steps[p1.y()][p1.x()] > steps[p2.y()][p2.x()]) {
+                                int value = steps[p1.y()][p1.x()] - steps[p2.y()][p2.x()] - (Math.abs(dy) + Math.abs(dx));
+//                                if (value == 50) {
+//                                    start50.add(p1);
+//                                    end50.add(p2);
+//                                }
+                                if (value >= 100) {
+                                    result++;
+                                }
+
+//                                count.put(value, count.get(value) + 1);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return result;
     }
 
     public int[][] getStepsRequired(Tile[][] map, Point2 end) {
