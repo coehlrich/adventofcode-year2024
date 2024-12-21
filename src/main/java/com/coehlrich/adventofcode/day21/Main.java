@@ -2,104 +2,52 @@ package com.coehlrich.adventofcode.day21;
 
 import com.coehlrich.adventofcode.Day;
 import com.coehlrich.adventofcode.Result;
-import it.unimi.dsi.fastutil.chars.Char2ObjectMap;
-import it.unimi.dsi.fastutil.chars.Char2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
-import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2LongMap;
+import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public class Main implements Day {
 
     @Override
     public Result execute(String input) {
         List<String> codes = input.lines().toList();
-
-        return new Result(getResult(codes, 2), 0);
+        int part1 = 0;
+        long part2 = 0;
+        for (String code : codes) {
+            int length1 = 0;
+            long length2 = 0;
+            long value = Integer.parseInt(code.substring(0, 3));
+            for (int i = 0; i < code.length(); i++) {
+                char character = code.charAt(i);
+                length1 += getResult(i == 0 ? 'A' : code.charAt(i - 1), character, 3, false, new Object2LongOpenHashMap<>());
+                length2 += getResult(i == 0 ? 'A' : code.charAt(i - 1), character, 26, false, new Object2LongOpenHashMap<>());
+            }
+            part1 += length1 * value;
+            part2 += length2 * value;
+        }
+        return new Result(part1, part2);
     }
 
-    public int getResult(List<String> codes, int robots) {
-        int part1 = 0;
-        Char2ObjectMap<Char2ObjectMap<String>> shortest = new Char2ObjectOpenHashMap<>();
-        for (char previous : "^A<v>".toCharArray()) {
-            Char2ObjectMap<Set<String>> directional1 = new Char2ObjectOpenHashMap<>();
-            for (char character : "^A<v>".toCharArray()) {
-                Set<String> results = getDirections(previous, character, true);
-//                System.out.println(results);
-                directional1.put(character, results);
-            }
-
-            Char2ObjectMap<Set<String>> previousMap = directional1;
-            for (int i = 0; i < robots - 1; i++) {
-                System.out.println(i);
-                Char2ObjectMap<Set<String>> directional2 = new Char2ObjectOpenHashMap<>();
-                for (char character : "^A<v>".toCharArray()) {
-                    Set<String> results = new HashSet<>();
-                    Set<String> first = previousMap.get(character);
-                    Int2ObjectMap<Set<String>> shortMap = new Int2ObjectOpenHashMap<>();
-                    for (String string : first) {
-                        Set<String> newDirections = new HashSet<>();
-                        newDirections.add("");
-                        for (int j = 0; j < string.length(); j++) {
-                            Set<String> newSet = getDirections(j == 0 ? 'A' : string.charAt(j - 1), string.charAt(j), true);
-                            newDirections = newDirections.stream().<String>mapMulti((direction, consumer) -> {
-                                for (String newString : newSet) {
-                                    consumer.accept(direction + newString);
-                                }
-                            }).collect(Collectors.toSet());
-                            int minLength = newDirections.stream().mapToInt(String::length).min().getAsInt();
-                            newDirections = newDirections.stream().filter(direction -> direction.length() == minLength).collect(Collectors.toSet());
-                        }
-                        int minLength = newDirections.stream().mapToInt(String::length).min().getAsInt();
-                        shortMap.putIfAbsent(minLength, new HashSet<>());
-                        shortMap.get(minLength).add(string);
-                        results.addAll(newDirections.stream().filter(direction -> direction.length() == minLength).toList());
-                    }
-                    int minLength = results.stream().mapToInt(String::length).min().getAsInt();
-                    System.out.println(shortMap.get(minLength));
-                    directional2.put(character, Set.of(results.stream().filter(string -> string.length() == minLength).findFirst().get()));
-                }
-                previousMap = directional2;
-            }
-            Char2ObjectMap<String> values = new Char2ObjectOpenHashMap<>();
-            for (Char2ObjectMap.Entry<Set<String>> entry : previousMap.char2ObjectEntrySet()) {
-                int minLength = entry.getValue().stream().mapToInt(String::length).min().getAsInt();
-                values.put(entry.getCharKey(), entry.getValue().stream().filter(string -> string.length() == minLength).findFirst().get());
-            }
-            shortest.put(previous, values);
+    public long getResult(char previous, char character, int robots, boolean directional, Object2LongMap<State> cache) {
+        if (robots == 0) {
+            return 1;
+        } else if (cache.containsKey(new State(robots, previous, character))) {
+            return cache.getLong(new State(robots, previous, character));
         }
 
-        for (String code : codes) {
-            int length = 0;
-            for (int i = 0; i < code.length(); i++) {
-                Set<String> directions = getDirections(i == 0 ? 'A' : code.charAt(i - 1), code.charAt(i), false);
-                int min = Integer.MAX_VALUE;
-//                Set<String> minStrings = new HashSet<>();
-                for (String direction : directions) {
-//                    StringBuilder builder = new StringBuilder();
-                    int thisLength = 0;
-                    for (int j = 0; j < direction.length(); j++) {
-                        thisLength += shortest.get(j == 0 ? 'A' : direction.charAt(j - 1)).get(direction.charAt(j)).length();
-//                        builder.append(directional2.get(character));
-                    }
-//                    if (thisLength < min) {
-//                        minStrings = new HashSet<>();
-//                    }
-                    min = Math.min(thisLength, min);
-//                    if (min == thisLength) {
-//                        minStrings.add(builder.toString());
-//                    }
-                }
-//                System.out.println(minStrings);
-                length += min;
+        long minLength = Long.MAX_VALUE;
+        for (String direction : getDirections(previous, character, directional)) {
+            long length = 0;
+            for (int i = 0; i < direction.length(); i++) {
+                length += getResult(i == 0 ? 'A' : direction.charAt(i - 1), direction.charAt(i), robots - 1, true, cache);
             }
-//            System.out.println(length);
-            part1 += length * Integer.parseInt(code.substring(0, 3));
+            minLength = Math.min(length, minLength);
         }
-        return part1;
+        cache.put(new State(robots, previous, character), minLength);
+        return minLength;
     }
 
     public Set<String> getDirections(char previous, char character, boolean directional) {
@@ -133,8 +81,13 @@ public class Main implements Day {
             String vertical = (ny > oy ? "v" : "^").repeat(Math.abs(ny - oy));
             String horizontal = (nx > ox ? ">" : "<").repeat(Math.abs(nx - ox));
             if (!vertical.isEmpty()) {
-
-                result.addAll(getInserts(horizontal, vertical.charAt(0)).stream().map(string -> string + "A").toList());
+                Set<String> end = getInserts(horizontal, vertical.charAt(0));
+                if (ny == 0 && oy > 0 && ox == 0) {
+                    end.remove("^".repeat(oy - ny) + ">".repeat(nx - ox));
+                } else if (oy == 0 && ny > 0 && nx == 0) {
+                    end.remove("<".repeat(ox - nx) + "v".repeat(ny - oy));
+                }
+                result.addAll(end.stream().map(string -> string + "A").toList());
             } else {
                 result.add(horizontal + "A");
             }
@@ -191,6 +144,9 @@ public class Main implements Day {
             result.add(newText.toString());
         }
         return result;
+    }
+
+    public record State(int robots, char previous, char current) {
     }
 
 }
